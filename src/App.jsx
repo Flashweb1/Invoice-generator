@@ -8,6 +8,7 @@ import InvoiceList from './components/Invoices/InvoiceList';
 import ClientList from './components/Clients/ClientList';
 import Settings from './components/Settings/Settings';
 import Billing from './components/Billing/Billing';
+import AiAssistant from './components/AI/AiAssistant';
 import Editor from './components/Editor/Editor';
 import { genId, today, addDays } from './utils/helpers';
 
@@ -123,6 +124,7 @@ export default function App() {
         {state.page === 'clients' && <ClientList newInvoiceForClient={handleNewInvoiceForClient} toast={showToast} />}
         {state.page === 'settings' && <Settings toast={showToast} />}
         {state.page === 'billing' && <Billing toast={showToast} />}
+        {state.page === 'ai' && <AiAssistant toast={showToast} />}
         {state.page === 'editor' && <Editor onClose={handleCloseEditor} toast={showToast} />}
       </div>
 

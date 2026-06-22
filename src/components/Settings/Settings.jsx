@@ -7,12 +7,16 @@ const tabs = [
   { id: 'plan', icon: '⭐', label: 'Plan' },
   { id: 'tax', icon: '🧮', label: 'Tax & Currency' },
   { id: 'numbering', icon: '🔢', label: 'Invoice Numbering' },
+  { id: 'api', icon: '🔑', label: 'API Keys' },
 ];
 
 export default function Settings({ toast }) {
   const { state, dispatch } = useStore();
   const [tab, setTab] = useState('profile');
   const [s, setS] = useState({ ...state.settings });
+  const [apiKey, setApiKey] = useState(() => {
+    try { return localStorage.getItem('ik_openrouter_key') || ''; } catch { return ''; }
+  });
 
   useEffect(() => { setS({ ...state.settings }); }, [state.settings]);
 
@@ -21,6 +25,11 @@ export default function Settings({ toast }) {
   function saveSettings(patch) {
     dispatch({ type: 'SET_SETTINGS', payload: { ...s, ...patch } });
     toast('Saved', 'success');
+  }
+
+  function handleSaveApiKey() {
+    try { localStorage.setItem('ik_openrouter_key', apiKey); } catch {}
+    toast('API key saved', 'success');
   }
 
   return (
@@ -161,6 +170,22 @@ export default function Settings({ toast }) {
               </div>
             </div>
             <button className="btn btn-primary" onClick={() => saveSettings({ invPrefix: s.invPrefix, invNext: s.invNext })}>Save</button>
+          </div>
+        )}
+
+        {/* API Keys */}
+        {tab === 'api' && (
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 6 }}>API Keys</div>
+            <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 28 }}>Connect AI features with a free OpenRouter key</div>
+            <div className="form-group">
+              <label className="form-label">OpenRouter API Key</label>
+              <input className="form-input" type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="sk-or-v1-..." />
+              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 6 }}>
+                Get a free key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" style={{ color: '#2563EB' }}>openrouter.ai/keys</a> — no credit card needed.
+              </div>
+            </div>
+            <button className="btn btn-primary" onClick={handleSaveApiKey}>Save API Key</button>
           </div>
         )}
       </div>

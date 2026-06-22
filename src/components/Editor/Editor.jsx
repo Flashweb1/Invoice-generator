@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../../context/InvoiceContext';
 import { genId, today, addDays } from '../../utils/helpers';
+import { callAI, isAIAvailable } from '../../services/ai';
 import TemplatePicker from './TemplatePicker';
 import LogoUpload from './LogoUpload';
 import ItemsEditor from './ItemsEditor';
@@ -128,6 +129,38 @@ export default function Editor({ onClose, toast }) {
       items: prev.items.map(i => i.id === id ? { ...i, [field]: val } : i)
     }));
     setTimeout(triggerRender, 0);
+  }
+
+  async function handleAISuggest(id, desc) {
+    if (!isAIAvailable()) { toast('Add OpenRouter API key in Settings for AI features', 'error'); return; }
+    const prompt = desc
+      ? `Expand this invoice line item description to be more professional and detailed (max 15 words): "${desc}"`
+      : `Suggest a professional invoice line item description for a freelance/service business (max 15 words). Return only the text.`;
+    const result = await callAI(prompt, 'You write professional invoice line item descriptions. Return ONLY the description text, no quotes, no explanation.');
+    if (result) {
+      updateItem(id, 'desc', result);
+      toast('AI description generated', 'success');
+    } else {
+      toast('AI suggestion failed — check your API key', 'error');
+    }
+  }
+
+  async function handleGenerateNotes() {
+    if (!isAIAvailable()) { toast('Add OpenRouter API key in Settings for AI features', 'error'); return; }
+    const vals = readSidebar();
+    const items = inv.items.map(i => i.desc || 'item').join(', ');
+    const context = `Invoice for ${vals.toName || 'client'}, items: ${items || 'services'}. Total: ${inv.currency || 'USD'}`;
+    const result = await callAI(
+      context,
+      'Write 2-3 professional invoice notes including payment terms (net-30), accepted payment methods, and a thank-you message. Return ONLY the note text.'
+    );
+    if (result) {
+      const el = document.getElementById('inv-notes');
+      if (el) { el.value = result; triggerRender(); }
+      toast('AI notes generated', 'success');
+    } else {
+      toast('AI generation failed — check your API key', 'error');
+    }
   }
 
   function save() {
@@ -292,6 +325,11 @@ export default function Editor({ onClose, toast }) {
           <div className="sidebar-section">
             <div className="sidebar-section-title">Notes / Terms</div>
             <textarea className="form-input" id="inv-notes" rows={3} defaultValue={inv.notes} onInput={triggerRender} placeholder="Payment terms, bank details, thank-you note…" />
+            {isAIAvailable() && (
+              <button className="btn btn-outline btn-sm" onClick={handleGenerateNotes} style={{ marginTop: 8, width: '100%' }}>
+                ✨ Generate Notes
+              </button>
+            )}
           </div>
 
           <div style={{ paddingBottom: 32 }} />
@@ -318,6 +356,7 @@ export default function Editor({ onClose, toast }) {
             onUpdate={updateItem}
             onAdd={addItem}
             onRemove={removeItem}
+            onAISuggest={handleAISuggest}
           />
 
           <InvoicePreview

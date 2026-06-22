@@ -14,7 +14,7 @@ export default function Navbar({ onNewInvoice }) {
     return () => document.removeEventListener('click', handleClick);
   }, []);
 
-  const pages = ['dashboard', 'invoices', 'clients', 'settings'];
+  const pages = ['dashboard', 'invoices', 'clients', 'ai', 'settings'];
 
   return (
     <nav style={{
