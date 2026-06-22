@@ -3,15 +3,16 @@ import { useStore } from '../../context/InvoiceContext';
 import { invTotal, fmt } from '../../utils/format';
 
 const statusMap = { Paid: 'badge-green', Sent: 'badge-blue', Draft: 'badge-gray', Overdue: 'badge-red' };
+const FILTERS = ['All', 'Draft', 'Sent', 'Paid', 'Overdue'];
 
 export default function InvoiceList({ onEdit, onNewInvoice, toast }) {
   const { state, dispatch } = useStore();
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
 
   let list = [...state.invoices].sort((a, b) => new Date(b.date) - new Date(a.date));
   if (search) list = list.filter(i => (i.toName + i.num + i.fromName).toLowerCase().includes(search.toLowerCase()));
-  if (statusFilter) list = list.filter(i => i.status === statusFilter);
+  if (statusFilter !== 'All') list = list.filter(i => i.status === statusFilter);
 
   function duplicate(id) {
     const orig = state.invoices.find(i => i.id === id);
@@ -35,26 +36,30 @@ export default function InvoiceList({ onEdit, onNewInvoice, toast }) {
 
   return (
     <div style={{ overflowY: 'auto', flex: 1 }}>
-      <div style={{ padding: '32px 32px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <div className="page-header">
         <div>
-          <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.4px' }}>Invoices</div>
-          <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Manage and track all your invoices</div>
+          <div className="page-header-title">Invoices</div>
+          <div className="page-header-sub">Manage and track all your invoices</div>
         </div>
         <button className="btn btn-primary" onClick={onNewInvoice}>+ New Invoice</button>
       </div>
 
-      <div style={{ padding: '20px 32px 16px', display: 'flex', gap: 10, alignItems: 'center' }}>
-        <div style={{ position: 'relative', flex: 1, maxWidth: 300 }}>
-          <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: 14, pointerEvents: 'none' }}>🔍</span>
-          <input className="form-input" style={{ paddingLeft: 34 }} placeholder="Search invoices..." value={search} onChange={e => setSearch(e.target.value)} />
+      <div className="filter-bar">
+        <div className="filter-tabs">
+          {FILTERS.map(f => (
+            <button key={f} className={`filter-tab${statusFilter === f ? ' active' : ''}`}
+              onClick={() => setStatusFilter(f)}>{f}</button>
+          ))}
         </div>
-        <select className="form-input" style={{ width: 140 }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-          <option value="">All statuses</option>
-          <option>Draft</option><option>Sent</option><option>Paid</option><option>Overdue</option>
-        </select>
+        <div className="search-wrap">
+          <span className="search-icon">🔍</span>
+          <input className="form-input" style={{ width: 240 }} placeholder="Search invoices..."
+            value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+        <div className="filter-count">{list.length} invoice{list.length !== 1 ? 's' : ''}</div>
       </div>
 
-      <div style={{ padding: '0 32px 32px' }}>
+      <div className="card-table">
         <table className="data-table">
           <thead>
             <tr>
@@ -80,10 +85,10 @@ export default function InvoiceList({ onEdit, onNewInvoice, toast }) {
               </tr>
             )) : (
               <tr><td colSpan={7}>
-                <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6B7280' }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🧾</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#374151', marginBottom: 6 }}>No invoices</div>
-                  <div>Hit "+ New Invoice" to create your first one</div>
+                <div className="empty-state">
+                  <div className="empty-icon">🧾</div>
+                  <div className="empty-title">No invoices</div>
+                  <div className="empty-text">Hit "+ New Invoice" to create your first one</div>
                 </div>
               </td></tr>
             )}

@@ -25,76 +25,125 @@ export default function Dashboard({ onNewInvoice, onEdit, onDuplicate, onDelete,
 
   const recent = [...state.invoices].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
+  const statusColors = { Paid: 'var(--green)', Sent: 'var(--blue)', Draft: 'var(--ink-4)', Overdue: 'var(--red)' };
+  const statusDots = { Paid: '#059669', Sent: '#2563EB', Draft: '#9CA3AF', Overdue: '#DC2626' };
+  const activity = [...state.invoices].sort((a, b) => new Date(b.date + 'T' + (b.updatedAt || '00:00')) - new Date(a.date + 'T' + (a.updatedAt || '00:00'))).slice(0, 5);
+
+  const stats = [
+    { label: 'Total Revenue', value: fmt(revenue), color: 'var(--ink)', sub: 'All time' },
+    { label: 'Outstanding', value: fmt(outstanding), color: 'var(--amber)', sub: `${outCount} invoice${outCount !== 1 ? 's' : ''}` },
+    { label: 'Paid this month', value: fmt(paid), color: 'var(--green)', sub: `${paidCount} invoice${paidCount !== 1 ? 's' : ''}` },
+    { label: 'Overdue', value: fmt(overdue), color: 'var(--red)', sub: `${overdueCount} invoice${overdueCount !== 1 ? 's' : ''}` },
+  ];
+
   return (
     <div style={{ overflowY: 'auto', flex: 1 }}>
-      <div style={{ padding: '32px 32px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <div className="page-header">
         <div>
-          <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.4px' }}>{greet}, {name} 👋</div>
-          <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+          <div className="page-header-title">{greet}, {name} 👋</div>
+          <div className="page-header-sub">
             {now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </div>
         </div>
         <button className="btn btn-primary" onClick={onNewInvoice}>+ New Invoice</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, padding: '24px 32px' }}>
-        {[
-          { label: 'Total Revenue', value: fmt(revenue), color: '#0B0F1A', sub: 'All time' },
-          { label: 'Outstanding', value: fmt(outstanding), color: '#D97706', sub: `${outCount} invoice${outCount !== 1 ? 's' : ''}` },
-          { label: 'Paid this month', value: fmt(paid), color: '#059669', sub: `${paidCount} invoice${paidCount !== 1 ? 's' : ''}` },
-          { label: 'Overdue', value: fmt(overdue), color: '#DC2626', sub: `${overdueCount} invoice${overdueCount !== 1 ? 's' : ''}` },
-        ].map(s => (
-          <div key={s.label} style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <div style={{ width: 3, height: 32, borderRadius: 3, background: s.color }} />
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '.5px' }}>{s.label}</div>
+      <div className="bento">
+        <div className="bento-row bento-row-4">
+          {stats.map(s => (
+            <div key={s.label} className="bento-card stat-card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                <div className="stat-bar" style={{ background: s.color }} />
+                <div className="stat-label">{s.label}</div>
+              </div>
+              <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
+              <div className="stat-sub">{s.sub}</div>
             </div>
-            <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-.5px', lineHeight: 1, color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>{s.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ padding: '0 32px 32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div style={{ fontSize: 15, fontWeight: 700 }}>Recent Invoices</div>
-          <button className="btn btn-outline btn-sm" onClick={() => onNavigate('invoices')}>View all</button>
+          ))}
         </div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Invoice #</th><th>Client</th><th>Date</th><th>Due</th><th>Amount</th><th>Status</th><th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {recent.length ? recent.map(inv => (
-              <tr key={inv.id}>
-                <td><span style={{ fontWeight: 600 }}>{inv.num}</span></td>
-                <td>{inv.toName || '—'}</td>
-                <td>{inv.date || '—'}</td>
-                <td>{inv.due || '—'}</td>
-                <td style={{ fontWeight: 600 }}>{fmt(invTotal(inv), inv.currency || 'USD')}</td>
-                <td><StatusBadge status={inv.status} /></td>
-                <td>
-                  <div className="actions">
-                    <button className="btn btn-outline btn-sm btn-icon" onClick={() => onEdit(inv.id)} title="Edit">✏️</button>
-                    <button className="btn btn-outline btn-sm btn-icon" onClick={() => onDuplicate(inv.id)} title="Duplicate">📋</button>
-                    <button className="btn btn-danger btn-sm btn-icon" onClick={() => onDelete(inv.id)} title="Delete">🗑</button>
+
+        <div className="bento-row bento-row-2">
+          <div className="bento-card">
+            <div className="stat-label" style={{ marginBottom: 14 }}>Quick Actions</div>
+            <button className="action-btn" onClick={onNewInvoice}>
+              <div className="action-icon" style={{ background: 'var(--blue-l)' }}>🧾</div>
+              New Invoice
+            </button>
+            <button className="action-btn" onClick={() => onNavigate('clients')}>
+              <div className="action-icon" style={{ background: 'var(--green-l)' }}>👤</div>
+              Add Client
+            </button>
+            <button className="action-btn" onClick={() => onNavigate('billing')}>
+              <div className="action-icon" style={{ background: 'var(--amber-l)' }}>⭐</div>
+              Upgrade Plan
+            </button>
+          </div>
+
+          <div className="bento-card">
+            <div className="stat-label" style={{ marginBottom: 4 }}>Recent Activity</div>
+            {activity.length ? activity.map(inv => (
+              <div key={inv.id} className="activity-item">
+                <div className="activity-dot" style={{ background: statusDots[inv.status] || '#9CA3AF' }} />
+                <div className="activity-body">
+                  <div className="activity-text">
+                    <strong>{inv.num}</strong> to {inv.toName || 'Unknown'}
+                    <span className={`badge ${inv.status === 'Paid' ? 'badge-green' : inv.status === 'Sent' ? 'badge-blue' : inv.status === 'Overdue' ? 'badge-red' : 'badge-gray'}`} style={{ marginLeft: 8 }}>{inv.status}</span>
                   </div>
-                </td>
-              </tr>
-            )) : (
-              <tr><td colSpan={7}>
-                <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6B7280' }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🧾</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#374151', marginBottom: 6 }}>No invoices yet</div>
-                  <div>Create your first invoice to get started</div>
-                  <button className="btn btn-primary btn-sm mt-4" onClick={onNewInvoice}>Create invoice</button>
+                  <div className="activity-time">{fmt(invTotal(inv), inv.currency || 'USD')} &middot; {inv.date}</div>
                 </div>
-              </td></tr>
+              </div>
+            )) : (
+              <div className="empty-state" style={{ padding: '30px 20px' }}>
+                <div style={{ fontSize: 24, marginBottom: 8 }}>📄</div>
+                <div className="empty-title">No activity yet</div>
+                <div className="empty-text">Create your first invoice</div>
+                <button className="btn btn-primary btn-sm" onClick={onNewInvoice}>Create invoice</button>
+              </div>
             )}
-          </tbody>
-        </table>
+          </div>
+        </div>
+
+        <div className="card-table">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>Recent Invoices</div>
+            <button className="btn btn-outline btn-sm" onClick={() => onNavigate('invoices')}>View all</button>
+          </div>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Invoice #</th><th>Client</th><th>Date</th><th>Due</th><th>Amount</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {recent.length ? recent.map(inv => (
+                <tr key={inv.id}>
+                  <td><span style={{ fontWeight: 600 }}>{inv.num}</span></td>
+                  <td>{inv.toName || '—'}</td>
+                  <td>{inv.date || '—'}</td>
+                  <td>{inv.due || '—'}</td>
+                  <td style={{ fontWeight: 600 }}>{fmt(invTotal(inv), inv.currency || 'USD')}</td>
+                  <td><StatusBadge status={inv.status} /></td>
+                  <td>
+                    <div className="actions">
+                      <button className="btn btn-outline btn-sm btn-icon" onClick={() => onEdit(inv.id)} title="Edit">✏️</button>
+                      <button className="btn btn-outline btn-sm btn-icon" onClick={() => onDuplicate(inv.id)} title="Duplicate">📋</button>
+                      <button className="btn btn-danger btn-sm btn-icon" onClick={() => onDelete(inv.id)} title="Delete">🗑</button>
+                    </div>
+                  </td>
+                </tr>
+              )) : (
+                <tr><td colSpan={7}>
+                  <div className="empty-state">
+                    <div className="empty-icon">🧾</div>
+                    <div className="empty-title">No invoices yet</div>
+                    <div className="empty-text">Create your first invoice to get started</div>
+                    <button className="btn btn-primary btn-sm" onClick={onNewInvoice}>Create invoice</button>
+                  </div>
+                </td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
