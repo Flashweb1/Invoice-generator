@@ -11,37 +11,41 @@ export default function ItemsEditor({ items, currency, onUpdate, onAdd, onRemove
   }
 
   return (
-    <div className="items-card">
-      <div style={{ fontWeight: 700, fontSize: 13, color: '#1e293b', marginBottom: 14 }}>Line Items</div>
-      <div className="items-header">
-        <span>Description</span>
-        <span></span>
-        <span>Qty</span>
-        <span>Unit Price</span>
-        <span>Total</span>
-        <span></span>
+    <div>
+      <div className="editor-items-header">
+        <div className="editor-items-title">Line Items</div>
       </div>
-      {items.map(item => (
-        <div key={item.id} className="item-row">
-          <input value={item.desc} onChange={e => onUpdate(item.id, 'desc', e.target.value)}
-            placeholder="Item description" className="form-input" />
-          <button
-            onClick={() => handleAISuggest(item.id, item.desc)}
-            disabled={loadingId === item.id || !onAISuggest}
-            className="item-ai-btn"
-            title="AI suggest description"
-          >{loadingId === item.id ? '⏳' : '✨'}</button>
-          <input value={item.qty} onChange={e => onUpdate(item.id, 'qty', e.target.value)}
-            type="number" min="1" className="form-input" style={{ textAlign: 'right' }} />
-          <input value={item.price} onChange={e => onUpdate(item.id, 'price', e.target.value)}
-            type="number" placeholder="0.00" className="form-input" style={{ textAlign: 'right' }} />
-          <div className="item-total">
-            {fmt((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0), currency)}
-          </div>
-          <button onClick={() => onRemove(item.id)} className="remove-item">×</button>
+      <div className="items-inline">
+        <div className="items-inline-head">
+          <span>Description</span>
+          <span></span>
+          <span>Qty</span>
+          <span>Price</span>
+          <span>Total</span>
+          <span></span>
         </div>
-      ))}
-      <button className="add-item-btn" onClick={onAdd}>+ Add line item</button>
+        {items.map(item => (
+          <div key={item.id} className="item-row">
+            <input value={item.desc} onChange={e => onUpdate(item.id, 'desc', e.target.value)}
+              placeholder="Item description" className="form-input" />
+            <button
+              onClick={() => handleAISuggest(item.id, item.desc)}
+              disabled={loadingId === item.id || !onAISuggest}
+              className="item-ai-btn"
+              title="AI suggest description"
+            >{loadingId === item.id ? '⏳' : '✨'}</button>
+            <input value={item.qty} onChange={e => onUpdate(item.id, 'qty', e.target.value)}
+              type="number" min="1" className="form-input" style={{ textAlign: 'right' }} />
+            <input value={item.price} onChange={e => onUpdate(item.id, 'price', e.target.value)}
+              type="number" placeholder="0.00" className="form-input" style={{ textAlign: 'right' }} />
+            <div className="item-total">
+              {fmt((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0), currency)}
+            </div>
+            <button onClick={() => onRemove(item.id)} className="remove-item">×</button>
+          </div>
+        ))}
+        <button className="add-item-btn" onClick={onAdd}>+ Add line item</button>
+      </div>
     </div>
   );
 }

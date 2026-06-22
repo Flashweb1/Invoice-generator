@@ -9,6 +9,7 @@ import InvoicePreview from './InvoicePreview';
 
 export default function Editor({ onClose, toast }) {
   const { state, dispatch } = useStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isEditing = !!state.currentInvoice;
   const defaults = {
@@ -63,7 +64,6 @@ export default function Editor({ onClose, toast }) {
 
   function readSidebar() {
     const get = id => document.getElementById(id)?.value ?? '';
-    const g = id => document.getElementById(id);
     return {
       currency: get('inv-currency'),
       tax: parseFloat(get('inv-tax')) || 0,
@@ -166,24 +166,14 @@ export default function Editor({ onClose, toast }) {
   function save() {
     const vals = readSidebar();
     const updated = {
-      ...inv,
-      template,
-      logo,
-      num: vals.invNum,
-      date: vals.invDate,
-      due: vals.invDue,
-      currency: vals.currency,
-      tax: vals.tax,
-      discount: vals.discount,
-      discountType: vals.discountType,
-      fromName: vals.fromName,
-      fromEmail: vals.fromEmail,
-      fromPhone: vals.fromPhone,
-      fromAddress: vals.fromAddress,
-      toName: vals.toName,
-      toEmail: vals.toEmail,
-      toPhone: vals.toPhone,
-      toAddress: vals.toAddress,
+      ...inv, template, logo,
+      num: vals.invNum, date: vals.invDate, due: vals.invDue,
+      currency: vals.currency, tax: vals.tax,
+      discount: vals.discount, discountType: vals.discountType,
+      fromName: vals.fromName, fromEmail: vals.fromEmail,
+      fromPhone: vals.fromPhone, fromAddress: vals.fromAddress,
+      toName: vals.toName, toEmail: vals.toEmail,
+      toPhone: vals.toPhone, toAddress: vals.toAddress,
       notes: vals.notes,
     };
 
@@ -205,166 +195,170 @@ export default function Editor({ onClose, toast }) {
     const el = document.getElementById('preview-doc');
     if (!el) return;
     const filename = `${inv.num || 'invoice'}.pdf`;
-    const opt = {
-      margin: [0, 0, 0, 0],
-      filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
     toast('Generating PDF…');
     import('html2pdf.js').then(m => {
-      m.default().set(opt).from(el).save().then(() => toast('PDF downloaded!', 'success'));
+      m.default().set({
+        margin: [0, 0, 0, 0], filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).from(el).save().then(() => toast('PDF downloaded!', 'success'));
     });
   }
 
   function printDoc() { window.print(); }
 
   return (
-    <div id="page-editor" style={{ display: 'flex', height: 'calc(100vh - 60px)', overflow: 'hidden' }}>
-      <div className="editor-sidebar">
-        <div className="editor-topbar">
-          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ padding: '6px 8px' }}>← Back</button>
-          <div className="editor-topbar-title">{inv.docType === 'receipt' ? 'Edit Receipt' : 'Edit Invoice'}</div>
-          <button className="btn btn-primary btn-sm" onClick={save}>Save</button>
+    <div id="page-editor" style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      {/* Unified top bar */}
+      <div className="editor-bar">
+        <div className="editor-bar-left">
+          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ padding: '6px 8px', fontSize: 13 }}>← Back</button>
+          <div className="editor-bar-title">{inv.docType === 'receipt' ? 'Edit Receipt' : 'Edit Invoice'}</div>
         </div>
-        <div className="sidebar-body">
-          {/* Doc type tabs */}
+        <div className="editor-bar-center">
           <div className="doc-type-tabs">
             <button className={`doc-tab${inv.docType === 'invoice' ? ' active' : ''}`} onClick={() => handleSetDocType('invoice')}>Invoice</button>
             <button className={`doc-tab${inv.docType === 'receipt' ? ' active' : ''}`} onClick={() => handleSetDocType('receipt')}>Receipt</button>
           </div>
-
-          {/* Template */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Template</div>
-            <TemplatePicker value={template} onChange={handleSetTemplate} />
-          </div>
-
-          {/* Logo */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Logo</div>
-            <LogoUpload logo={logo} onUpload={handleLogoUpload} onClear={handleClearLogo} />
-          </div>
-
-          {/* Invoice details */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Invoice details</div>
-            <div className="form-group"><label className="form-label">Invoice #</label><input className="form-input" id="inv-num" defaultValue={inv.num} onInput={triggerRender} /></div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div className="form-group"><label className="form-label">Date</label><input className="form-input" type="date" id="inv-date" defaultValue={inv.date} onInput={triggerRender} /></div>
-              <div className="form-group"><label className="form-label">Due date</label><input className="form-input" type="date" id="inv-due" defaultValue={inv.due} onInput={triggerRender} /></div>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Status</label>
-              <select className="form-input" id="inv-status" defaultValue={inv.status}>
-                <option>Draft</option><option>Sent</option><option>Paid</option><option>Overdue</option>
-              </select>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div className="form-group"><label className="form-label">Currency</label>
-                <select className="form-input" id="inv-currency" defaultValue={inv.currency} onChange={triggerRender}>
-                  <option value="USD">USD $</option><option value="EUR">EUR €</option>
-                  <option value="GBP">GBP £</option><option value="CAD">CAD $</option>
-                  <option value="AED">AED د.إ</option><option value="INR">INR ₹</option>
-                </select>
-              </div>
-              <div className="form-group"><label className="form-label">Tax (%)</label><input className="form-input" type="number" id="inv-tax" defaultValue={inv.tax} min="0" onInput={triggerRender} /></div>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Discount</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input className="form-input" type="number" id="inv-discount" defaultValue={inv.discount} min="0" onInput={triggerRender} style={{ flex: 1 }} />
-                <select className="form-input" id="inv-discount-type" defaultValue={inv.discountType} onChange={triggerRender} style={{ width: 80 }}>
-                  <option value="pct">%</option>
-                  <option value="flat">$</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* From */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">From (You)</div>
-            <div className="form-group"><label className="form-label">Name / Company</label><input className="form-input" id="from-name" defaultValue={inv.fromName} onInput={triggerRender} /></div>
-            <div className="form-group"><label className="form-label">Email</label><input className="form-input" id="from-email" defaultValue={inv.fromEmail} onInput={triggerRender} /></div>
-            <div className="form-group"><label className="form-label">Phone</label><input className="form-input" id="from-phone" defaultValue={inv.fromPhone} onInput={triggerRender} /></div>
-            <div className="form-group"><label className="form-label">Address</label><textarea className="form-input" id="from-address" rows={2} defaultValue={inv.fromAddress} onInput={triggerRender} /></div>
-          </div>
-
-          {/* To */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Bill To</div>
-            <div className="form-group" style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}><label className="form-label">Client name</label><input className="form-input" id="to-name" defaultValue={inv.toName} onInput={triggerRender} /></div>
-              <div ref={pickerRef} style={{ position: 'relative', marginBottom: 1 }}>
-                <button className="btn btn-outline btn-sm btn-icon" onClick={() => setPickerOpen(o => !o)} title="Pick from clients">👥</button>
-                {pickerOpen && (
-                  <div style={{
-                    position: 'absolute', right: 0, top: 'calc(100% + 6px)', background: '#fff',
-                    border: '1px solid #E5E7EB', borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,.12)',
-                    minWidth: 220, maxHeight: 200, overflowY: 'auto', zIndex: 300
-                  }}>
-                    {!state.clients.length ? (
-                      <div style={{ padding: '9px 14px', fontSize: 13, color: '#9CA3AF' }}>No clients saved</div>
-                    ) : state.clients.map(c => (
-                      <button key={c.id} className="dropdown-item" onClick={() => fillFromClient(c)}>
-                        {c.name}{c.company ? <span style={{ color: '#6B7280', fontSize: 11 }}> — {c.company}</span> : ''}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="form-group"><label className="form-label">Email</label><input className="form-input" id="to-email" defaultValue={inv.toEmail} onInput={triggerRender} /></div>
-            <div className="form-group"><label className="form-label">Phone</label><input className="form-input" id="to-phone" defaultValue={inv.toPhone} onInput={triggerRender} /></div>
-            <div className="form-group"><label className="form-label">Address</label><textarea className="form-input" id="to-address" rows={2} defaultValue={inv.toAddress} onInput={triggerRender} /></div>
-          </div>
-
-          {/* Notes */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-title">Notes / Terms</div>
-            <textarea className="form-input" id="inv-notes" rows={3} defaultValue={inv.notes} onInput={triggerRender} placeholder="Payment terms, bank details, thank-you note…" />
-            {isAIAvailable() && (
-              <button className="btn btn-outline btn-sm" onClick={handleGenerateNotes} style={{ marginTop: 8, width: '100%' }}>
-                ✨ Generate Notes
-              </button>
-            )}
-          </div>
-
-          <div style={{ paddingBottom: 32 }} />
+        </div>
+        <div className="editor-bar-right">
+          <button className="btn btn-outline btn-sm editor-sidebar-toggle" onClick={() => setSidebarOpen(o => !o)} title="Toggle sidebar">☰</button>
+          <button className="btn btn-outline btn-sm" onClick={printDoc}>🖨 Print</button>
+          <button className="btn btn-blue btn-sm" onClick={exportPDF}>↓ PDF</button>
+          <button className="btn btn-primary btn-sm" onClick={save}>💾 Save</button>
         </div>
       </div>
 
-      {/* Preview pane */}
-      <div className="editor-preview">
-        <div className="preview-toolbar">
-          <div className="preview-toolbar-left">
-            <span>📄</span>
-            <span>{inv.docType === 'receipt' ? 'Receipt Preview' : 'Invoice Preview'}</span>
-          </div>
-          <div className="preview-toolbar-right">
-            <button className="btn btn-outline btn-sm" onClick={printDoc} style={{ color: '#fff', borderColor: 'rgba(255,255,255,.3)' }}>🖨 Print</button>
-            <button className="btn btn-blue btn-sm" onClick={exportPDF}>↓ Export PDF</button>
-          </div>
-        </div>
+      <div className="editor-body">
+        {/* Sidebar overlay (mobile) */}
+        {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
 
-        <div>
-          <ItemsEditor
-            items={inv.items}
-            currency={sidebarValues.currency || inv.currency || 'USD'}
-            onUpdate={updateItem}
-            onAdd={addItem}
-            onRemove={removeItem}
-            onAISuggest={handleAISuggest}
-          />
+        {/* Left: Sidebar */}
+        <aside className={`editor-sidebar${sidebarOpen ? ' open' : ''}`}>
+          <div className="sidebar-body">
+            {/* Template */}
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">Template</div>
+              <TemplatePicker value={template} onChange={handleSetTemplate} />
+            </div>
 
-          <InvoicePreview
-            inv={inv}
-            template={template}
-            logo={logo}
-            sidebarValues={sidebarValues}
-          />
+            {/* Logo */}
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">Logo</div>
+              <LogoUpload logo={logo} onUpload={handleLogoUpload} onClear={handleClearLogo} />
+            </div>
+
+            {/* Invoice details */}
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">Invoice details</div>
+              <div className="form-group"><label className="form-label">Invoice #</label><input className="form-input" id="inv-num" defaultValue={inv.num} onInput={triggerRender} /></div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="form-group"><label className="form-label">Date</label><input className="form-input" type="date" id="inv-date" defaultValue={inv.date} onInput={triggerRender} /></div>
+                <div className="form-group"><label className="form-label">Due</label><input className="form-input" type="date" id="inv-due" defaultValue={inv.due} onInput={triggerRender} /></div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Status</label>
+                <select className="form-input" id="inv-status" defaultValue={inv.status}>
+                  <option>Draft</option><option>Sent</option><option>Paid</option><option>Overdue</option>
+                </select>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="form-group"><label className="form-label">Currency</label>
+                  <select className="form-input" id="inv-currency" defaultValue={inv.currency} onChange={triggerRender}>
+                    <option value="USD">USD $</option><option value="EUR">EUR €</option>
+                    <option value="GBP">GBP £</option><option value="CAD">CAD $</option>
+                    <option value="AED">AED د.إ</option><option value="INR">INR ₹</option>
+                  </select>
+                </div>
+                <div className="form-group"><label className="form-label">Tax %</label><input className="form-input" type="number" id="inv-tax" defaultValue={inv.tax} min="0" onInput={triggerRender} /></div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Discount</label>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input className="form-input" type="number" id="inv-discount" defaultValue={inv.discount} min="0" onInput={triggerRender} style={{ flex: 1 }} />
+                  <select className="form-input" id="inv-discount-type" defaultValue={inv.discountType} onChange={triggerRender} style={{ width: 70 }}>
+                    <option value="pct">%</option>
+                    <option value="flat">$</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* From */}
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">From (You)</div>
+              <div className="form-group"><label className="form-label">Name / Company</label><input className="form-input" id="from-name" defaultValue={inv.fromName} onInput={triggerRender} /></div>
+              <div className="form-group"><label className="form-label">Email</label><input className="form-input" id="from-email" defaultValue={inv.fromEmail} onInput={triggerRender} /></div>
+              <div className="form-group"><label className="form-label">Phone</label><input className="form-input" id="from-phone" defaultValue={inv.fromPhone} onInput={triggerRender} /></div>
+              <div className="form-group"><label className="form-label">Address</label><textarea className="form-input" id="from-address" rows={2} defaultValue={inv.fromAddress} onInput={triggerRender} /></div>
+            </div>
+
+            {/* To */}
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">Bill To</div>
+              <div className="form-group" style={{ display: 'flex', gap: 6, alignItems: 'flex-end' }}>
+                <div style={{ flex: 1 }}><label className="form-label">Client name</label><input className="form-input" id="to-name" defaultValue={inv.toName} onInput={triggerRender} /></div>
+                <div ref={pickerRef} style={{ position: 'relative', marginBottom: 1 }}>
+                  <button className="btn btn-outline btn-sm btn-icon" onClick={() => setPickerOpen(o => !o)} title="Pick from clients">👥</button>
+                  {pickerOpen && (
+                    <div style={{
+                      position: 'absolute', right: 0, top: 'calc(100% + 6px)', background: '#fff',
+                      border: '1px solid #E5E7EB', borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,.12)',
+                      minWidth: 200, maxHeight: 180, overflowY: 'auto', zIndex: 300
+                    }}>
+                      {!state.clients.length ? (
+                        <div style={{ padding: '9px 14px', fontSize: 13, color: '#9CA3AF' }}>No clients saved</div>
+                      ) : state.clients.map(c => (
+                        <button key={c.id} className="dropdown-item" onClick={() => fillFromClient(c)}>
+                          {c.name}{c.company ? <span style={{ color: '#6B7280', fontSize: 11 }}> — {c.company}</span> : ''}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="form-group"><label className="form-label">Email</label><input className="form-input" id="to-email" defaultValue={inv.toEmail} onInput={triggerRender} /></div>
+              <div className="form-group"><label className="form-label">Phone</label><input className="form-input" id="to-phone" defaultValue={inv.toPhone} onInput={triggerRender} /></div>
+              <div className="form-group"><label className="form-label">Address</label><textarea className="form-input" id="to-address" rows={2} defaultValue={inv.toAddress} onInput={triggerRender} /></div>
+            </div>
+
+            {/* Notes */}
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">Notes / Terms</div>
+              <textarea className="form-input" id="inv-notes" rows={3} defaultValue={inv.notes} onInput={triggerRender} placeholder="Payment terms, bank details, thank-you note…" />
+              {isAIAvailable() && (
+                <button className="btn btn-outline btn-sm" onClick={handleGenerateNotes} style={{ marginTop: 8, width: '100%' }}>
+                  ✨ Generate Notes
+                </button>
+              )}
+            </div>
+
+            <div style={{ paddingBottom: 24 }} />
+          </div>
+        </aside>
+
+        {/* Right: Content (items + preview) */}
+        <div className="editor-content">
+          <div className="editor-items">
+            <ItemsEditor
+              items={inv.items}
+              currency={sidebarValues.currency || inv.currency || 'USD'}
+              onUpdate={updateItem}
+              onAdd={addItem}
+              onRemove={removeItem}
+              onAISuggest={handleAISuggest}
+            />
+          </div>
+
+          <div className="editor-preview">
+            <InvoicePreview
+              inv={inv}
+              template={template}
+              logo={logo}
+              sidebarValues={sidebarValues}
+            />
+          </div>
         </div>
       </div>
     </div>

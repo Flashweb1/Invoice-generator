@@ -11,7 +11,7 @@ const swatches = {
 
 export default function TemplatePicker({ value, onChange }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+    <div className="template-grid">
       {Object.entries(TEMPLATES).map(([key]) => (
         <button
           key={key}

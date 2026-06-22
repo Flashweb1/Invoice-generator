@@ -54,14 +54,14 @@ export default function InvoicePreview({ inv, template, logo, sidebarValues }) {
 
   let header = '';
   if (tpl === 'bold') {
-    header = `<div style="background:${T.accent};color:#fff;margin:-60px -64px 32px;padding:40px 64px 32px;display:flex;justify-content:space-between;align-items:flex-start"><div>${fromBlock}</div><div style="text-align:right">${titleBlock}</div></div>`;
+    header = `<div style="background:${T.accent};color:#fff;margin:-48px -52px 28px;padding:32px 52px 28px;display:flex;justify-content:space-between;align-items:flex-start"><div>${fromBlock}</div><div style="text-align:right">${titleBlock}</div></div>`;
   } else if (tpl === 'modern' || tpl === 'slate') {
-    header = `<div style="background:${T.headerBg};color:#fff;margin:-60px -64px 32px;padding:36px 64px 28px;display:flex;justify-content:space-between;align-items:flex-start;border-radius:0"><div>${fromBlock}</div><div style="text-align:right">${titleBlock}</div></div>`;
+    header = `<div style="background:${T.headerBg};color:#fff;margin:-48px -52px 28px;padding:28px 52px 24px;display:flex;justify-content:space-between;align-items:flex-start;border-radius:0"><div>${fromBlock}</div><div style="text-align:right">${titleBlock}</div></div>`;
   } else {
-    header = `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px"><div>${fromBlock}</div><div style="text-align:right">${titleBlock}</div></div><div style="height:3px;background:${T.accent};border-radius:2px;margin-bottom:28px"></div>`;
+    header = `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px"><div>${fromBlock}</div><div style="text-align:right">${titleBlock}</div></div><div style="height:3px;background:${T.accent};border-radius:2px;margin-bottom:24px"></div>`;
   }
 
-  const billTo = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:28px">
+  const billTo = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:24px">
     <div>
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:${T.accent};margin-bottom:6px">Bill To</div>
       <div style="font-weight:700;font-size:15px;margin-bottom:4px">${escHtml(toName || 'Client Name')}</div>
@@ -94,7 +94,7 @@ export default function InvoicePreview({ inv, template, logo, sidebarValues }) {
     </div>
   </div>`;
 
-  const notesHtml = notes ? `<div style="margin-top:32px;padding-top:18px;border-top:1px solid #e5e7eb">
+  const notesHtml = notes ? `<div style="margin-top:28px;padding-top:16px;border-top:1px solid #e5e7eb">
     <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:${T.accent};margin-bottom:6px">Notes</div>
     <div style="font-size:12px;color:#6b7280;white-space:pre-wrap">${escHtml(notes)}</div>
   </div>` : '';
@@ -111,7 +111,7 @@ export default function InvoicePreview({ inv, template, logo, sidebarValues }) {
           <table style="width:100%;border-collapse:collapse">${thead}<tbody>${tbody}</tbody></table>
           ${totals}
           ${notesHtml}
-          <div style="margin-top:48px;text-align:center;font-size:11px;color:#d1d5db">Thank you for your business.</div>
+          <div style="margin-top:36px;text-align:center;font-size:11px;color:#d1d5db">Thank you for your business.</div>
         `
       }}
     />
