@@ -5,34 +5,14 @@ import { invTotal, fmt } from '../../utils/format';
 const statusMap = { Paid: 'badge-green', Sent: 'badge-blue', Draft: 'badge-gray', Overdue: 'badge-red' };
 const FILTERS = ['All', 'Draft', 'Sent', 'Paid', 'Overdue'];
 
-export default function InvoiceList({ onEdit, onNewInvoice, toast }) {
-  const { state, dispatch } = useStore();
+export default function InvoiceList({ onEdit, onNewInvoice, onDuplicate, onDelete, toast }) {
+  const { state } = useStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
   let list = [...state.invoices].sort((a, b) => new Date(b.date) - new Date(a.date));
   if (search) list = list.filter(i => (i.toName + i.num + i.fromName).toLowerCase().includes(search.toLowerCase()));
   if (statusFilter !== 'All') list = list.filter(i => i.status === statusFilter);
-
-  function duplicate(id) {
-    const orig = state.invoices.find(i => i.id === id);
-    if (!orig) return;
-    const dup = JSON.parse(JSON.stringify(orig));
-    dup.id = Math.random().toString(36).slice(2) + Date.now().toString(36);
-    dup.num = state.settings.invPrefix + (state.settings.invNext || 1001);
-    dup.status = 'Draft';
-    dup.date = new Date().toISOString().slice(0, 10);
-    const newInvs = [...state.invoices, dup];
-    const newNext = (state.settings.invNext || 1001) + 1;
-    dispatch({ type: 'SET_INVOICES', payload: newInvs });
-    dispatch({ type: 'SET_SETTINGS', payload: { invNext: newNext } });
-    toast('Invoice duplicated', 'success');
-  }
-
-  function remove(id) {
-    dispatch({ type: 'SET_INVOICES', payload: state.invoices.filter(i => i.id !== id) });
-    toast('Deleted');
-  }
 
   return (
     <div style={{ overflowY: 'auto', flex: 1 }}>
@@ -78,8 +58,8 @@ export default function InvoiceList({ onEdit, onNewInvoice, toast }) {
                 <td>
                   <div className="actions" style={{ display: 'flex', gap: 6 }}>
                     <button className="btn btn-outline btn-sm btn-icon" onClick={() => onEdit(inv.id)} title="Edit">✏️</button>
-                    <button className="btn btn-outline btn-sm btn-icon" onClick={() => duplicate(inv.id)} title="Duplicate">📋</button>
-                    <button className="btn btn-danger btn-sm btn-icon" onClick={() => remove(inv.id)} title="Delete">🗑</button>
+                    <button className="btn btn-outline btn-sm btn-icon" onClick={() => { onDuplicate(inv.id); toast('Invoice duplicated', 'success'); }} title="Duplicate">📋</button>
+                    <button className="btn btn-danger btn-sm btn-icon" onClick={() => { onDelete(inv.id); toast('Deleted'); }} title="Delete">🗑</button>
                   </div>
                 </td>
               </tr>

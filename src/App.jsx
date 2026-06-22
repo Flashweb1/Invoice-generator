@@ -40,13 +40,14 @@ export default function App() {
     showToast('Deleted');
   }
 
-  function handleNewInvoice() {
+  function handleNewInvoice(clientId) {
     if (!plan.canCreateInvoice) {
       showToast('Free plan: 5 invoices/month. Upgrade to Pro or buy credits.', 'error');
       dispatch({ type: 'SET_PAGE', payload: 'billing' });
       return;
     }
     const s = state.settings;
+    const c = clientId ? state.clients.find(x => x.id === clientId) : null;
     const inv = {
       id: genId(),
       num: s.invPrefix + (s.invNext || 1001),
@@ -63,7 +64,7 @@ export default function App() {
       fromEmail: s.bizEmail || s.email,
       fromPhone: s.phone || '',
       fromAddress: s.bizAddress || '',
-      toName: '', toEmail: '', toPhone: '', toAddress: '',
+      toName: c?.name || '', toEmail: c?.email || '', toPhone: c?.phone || '', toAddress: c?.address || '',
       items: [{ id: genId(), desc: '', qty: 1, price: '' }],
       notes: '',
       logo: s.logo || null,
@@ -79,20 +80,7 @@ export default function App() {
   }
 
   function handleNewInvoiceForClient(clientId) {
-    handleNewInvoice();
-    const c = state.clients.find(x => x.id === clientId);
-    if (c) {
-      setTimeout(() => {
-        const elName = document.getElementById('to-name');
-        const elEmail = document.getElementById('to-email');
-        const elPhone = document.getElementById('to-phone');
-        const elAddr = document.getElementById('to-address');
-        if (elName) elName.value = c.name || '';
-        if (elEmail) elEmail.value = c.email || '';
-        if (elPhone) elPhone.value = c.phone || '';
-        if (elAddr) elAddr.value = c.address || '';
-      }, 50);
-    }
+    handleNewInvoice(clientId);
   }
 
   function handleCloseEditor() {
@@ -110,7 +98,7 @@ export default function App() {
 
       <div className={state.page === 'editor' ? '' : 'page-content'} style={state.page === 'editor' ? { flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' } : {}}>
         {state.page === 'dashboard' && <Dashboard onNewInvoice={handleNewInvoice} onEdit={handleEditInvoice} onDuplicate={handleDuplicateInvoice} onDelete={handleDeleteInvoice} onNavigate={handleNavigate} />}
-        {state.page === 'invoices' && <InvoiceList onEdit={handleEditInvoice} onNewInvoice={handleNewInvoice} toast={showToast} />}
+        {state.page === 'invoices' && <InvoiceList onEdit={handleEditInvoice} onNewInvoice={handleNewInvoice} onDuplicate={handleDuplicateInvoice} onDelete={handleDeleteInvoice} toast={showToast} />}
         {state.page === 'clients' && <ClientList newInvoiceForClient={handleNewInvoiceForClient} toast={showToast} />}
         {state.page === 'settings' && <Settings toast={showToast} />}
         {state.page === 'billing' && <Billing toast={showToast} />}
