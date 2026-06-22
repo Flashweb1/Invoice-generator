@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Contact — Invoice Me</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/landing.css"/>
+</head>
+<body>
+
+<nav class="landing-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">I</div>
+      Invoice Me
+    </a>
+    <button class="mobile-toggle" id="mobile-toggle">☰</button>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-actions" id="nav-actions">
+      <a href="../index.html" class="btn btn-outline btn-sm">Sign In</a>
+      <a href="../index.html" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<section class="page-header">
+  <h1>Get in touch</h1>
+  <p>Have a question, idea, or issue? We'd love to hear from you.</p>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="contact-form">
+      <div class="form-group">
+        <label class="form-label">Your name</label>
+        <input class="form-input" type="text" placeholder="Jane Doe"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" placeholder="jane@example.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input class="form-input" type="text" placeholder="What's this about?"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-input" rows="5" placeholder="Tell us more…"></textarea>
+      </div>
+      <button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px" onclick="alert('Thanks for reaching out! We\'ll get back to you soon.')">Send Message</button>
+      <p style="text-align:center;font-size:12px;color:var(--ink-4);margin-top:16px">Or email us directly at <a href="mailto:hello@invoicekit.dev" style="color:var(--blue);font-weight:600">hello@invoicekit.dev</a></p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo-mark" style="margin-bottom:0">I</div>
+        <p>Invoice Me makes invoicing fast, beautiful, and free for freelancers and small businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <a href="index.html">Home</a>
+        <a href="features.html">Features</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="features.html">Templates</a>
+        <a href="../index.html">Sign In</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Invoice Me. All rights reserved.</span>
+      <span>Built with care for freelancers.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/landing.js"></script>
+</body>
+</html>
