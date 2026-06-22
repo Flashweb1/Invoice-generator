@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../../context/InvoiceContext';
 import { genId, today, addDays } from '../../utils/helpers';
 import TemplatePicker from './TemplatePicker';
