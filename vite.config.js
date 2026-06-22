@@ -20,6 +20,7 @@ export default defineConfig({
     },
   ],
   build: {
+    outDir: 'dist/app',
     chunkSizeWarningLimit: 1000,
   },
 });
