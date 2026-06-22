@@ -4,6 +4,7 @@ import { copyFileSync, cpSync, existsSync, mkdirSync } from 'fs';
 import { resolve } from 'path';
 
 export default defineConfig({
+  base: '/app/',
   plugins: [
     react(),
     {
