@@ -106,19 +106,9 @@ export default function App() {
 
   return (
     <div className="app">
-      <style>{`
-        @media print {
-          .nav, .editor-sidebar, .preview-toolbar, .editor-preview > *:not(.preview-doc) { display:none !important; }
-          .editor-preview { padding:0 !important; background:#fff !important; }
-          .preview-doc { box-shadow:none !important; border-radius:0 !important; width:100% !important; margin:0 !important; }
-          body { background:#fff; }
-        }
-        @keyframes toastIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-      `}</style>
-
       {state.page !== 'editor' && <Navbar onNewInvoice={handleNewInvoice} />}
 
-      <div className="page active" style={state.page === 'editor' ? { display: 'flex', flex: 1 } : { overflowY: 'auto', flex: 1 }}>
+      <div className={state.page === 'editor' ? '' : 'page-content'} style={state.page === 'editor' ? { flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' } : {}}>
         {state.page === 'dashboard' && <Dashboard onNewInvoice={handleNewInvoice} onEdit={handleEditInvoice} onDuplicate={handleDuplicateInvoice} onDelete={handleDeleteInvoice} onNavigate={handleNavigate} />}
         {state.page === 'invoices' && <InvoiceList onEdit={handleEditInvoice} onNewInvoice={handleNewInvoice} toast={showToast} />}
         {state.page === 'clients' && <ClientList newInvoiceForClient={handleNewInvoiceForClient} toast={showToast} />}
