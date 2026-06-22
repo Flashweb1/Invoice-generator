@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useStore } from './context/InvoiceContext';
 import { usePlan } from './context/PlanContext';
 import { useToast } from './components/UI/Toast';
@@ -16,6 +17,7 @@ export default function App() {
   const { state, dispatch } = useStore();
   const plan = usePlan();
   const { showToast, ToastContainer } = useToast();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   function handleNavigate(page) {
     dispatch({ type: 'SET_PAGE', payload: page });
@@ -94,9 +96,15 @@ export default function App() {
 
   return (
     <div className="app">
-      {state.page !== 'editor' && <Navbar onNewInvoice={handleNewInvoice} />}
+      {state.page !== 'editor' && <Navbar onNewInvoice={handleNewInvoice} sidebarOpen={sidebarOpen} onToggleSidebar={setSidebarOpen} />}
 
       <div className={state.page === 'editor' ? '' : 'page-content'} style={state.page === 'editor' ? { flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' } : {}}>
+        {state.page !== 'editor' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderBottom: '1px solid var(--line)', background: 'var(--surface)' }} className="mobile-topbar">
+            <button className="hamburger" onClick={() => setSidebarOpen(o => !o)}>☰</button>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>Invoice Me</span>
+          </div>
+        )}
         {state.page === 'dashboard' && <Dashboard onNewInvoice={handleNewInvoice} onEdit={handleEditInvoice} onDuplicate={handleDuplicateInvoice} onDelete={handleDeleteInvoice} onNavigate={handleNavigate} />}
         {state.page === 'invoices' && <InvoiceList onEdit={handleEditInvoice} onNewInvoice={handleNewInvoice} onDuplicate={handleDuplicateInvoice} onDelete={handleDeleteInvoice} toast={showToast} />}
         {state.page === 'clients' && <ClientList newInvoiceForClient={handleNewInvoiceForClient} toast={showToast} />}
