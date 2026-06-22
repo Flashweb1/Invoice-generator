@@ -22,7 +22,8 @@ export default function ClientList({ newInvoiceForClient, toast }) {
 
   function save() {
     if (!form.name) { toast('Enter a name', 'error'); return; }
-    const c = { ...form, id: editId || genId(), color: randomColor() };
+    const existing = editId ? state.clients.find(x => x.id === editId) : null;
+    const c = { ...form, id: editId || genId(), color: existing?.color || randomColor() };
     let newClients;
     if (editId) {
       newClients = state.clients.map(x => x.id === editId ? c : x);

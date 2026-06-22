@@ -58,8 +58,8 @@ export default function InvoiceList({ onEdit, onNewInvoice, onDuplicate, onDelet
                 <td>
                   <div className="actions" style={{ display: 'flex', gap: 6 }}>
                     <button className="btn btn-outline btn-sm btn-icon" onClick={() => onEdit(inv.id)} title="Edit">✏️</button>
-                    <button className="btn btn-outline btn-sm btn-icon" onClick={() => { onDuplicate(inv.id); toast('Invoice duplicated', 'success'); }} title="Duplicate">📋</button>
-                    <button className="btn btn-danger btn-sm btn-icon" onClick={() => { onDelete(inv.id); toast('Deleted'); }} title="Delete">🗑</button>
+                    <button className="btn btn-outline btn-sm btn-icon" onClick={() => onDuplicate(inv.id)} title="Duplicate">📋</button>
+                    <button className="btn btn-danger btn-sm btn-icon" onClick={() => onDelete(inv.id)} title="Delete">🗑</button>
                   </div>
                 </td>
               </tr>

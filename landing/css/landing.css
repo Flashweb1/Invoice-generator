@@ -245,6 +245,8 @@ textarea.form-input{resize:vertical;line-height:1.6}
   .hero h1{font-size:32px}
   .hero p{font-size:15px}
   .features-grid{grid-template-columns:1fr}
+  .testimonials-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
   .pricing-grid{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
   .footer-bottom{flex-direction:column;gap:8px;text-align:center}
